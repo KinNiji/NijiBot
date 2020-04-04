@@ -64,7 +64,6 @@ string JudgeMessage(string message, int64_t target) //判断消息是否为调�
             }else{
                 return "ERROR";
             }
-            
             return "EXECUTED";
         }else if(blankCount == 0){
             return "HELP";
@@ -132,6 +131,7 @@ CQ_INIT {
             if (event.message == "应用列表"){
                 applist << "NijiBot搭载的应用及其指令：\n" << app1 << app2 << app3 << app4 << app5 << app6 << "回复\"详情 <应用名>\"以获取应用详情";
                 send_message(event.target, applist.str()); 
+                event.block();
             }
 
             if (event.message == "详情 计算器"){
@@ -139,32 +139,42 @@ CQ_INIT {
                 msg2 = Message("支持的计算及输入规范：\n[CQ:image,file=SuperCalculator.jpg]");
                 send_message(event.target, msg1); 
                 send_message(event.target, msg2);
+                event.block();
             }
 
             if (event.message == "详情 点歌机"){
                 msg1 = "接口：QQ音乐";
                 send_message(event.target, msg1); 
+                event.block();
             }
 
             if (event.message == "详情 翻译"){
                 msg1 = "接口：有道翻译\n支持中译英、多语言译中";
                 send_message(event.target, msg1); 
+                event.block();
             }
 
             if (event.message == "详情 搜题"){
                 msg1 = "接口：别人家的接口\n搜不到的话自己百度去";
                 send_message(event.target, msg1); 
+                event.block();
             }
             
             if (event.message == "详情 Pixiv搜图"){
                 msg1 = "接口：Pixivic(https://pixivic.com/)\n指令输入是：搜图 <ID/关键词> 或 以图搜图";
                 send_message(event.target, msg1);
+                event.block();
+            } 
+            
+            if (event.message == "详情 Debugger"){
+                send_message(event.target, helpInfo);
+                event.block();
             } 
 
         }catch (ApiError &err) { 
             logging::warning("所有", "消息回复失败, 错误码: " + to_string(err.code));
         }
-        event.block();
+        
     });
 
     on_private_message([](const PrivateMessageEvent &event) {
@@ -181,7 +191,7 @@ CQ_INIT {
             if (returnInfo == "EXECUTE") {
                 try{
                     if(event.message == "/debug -v" || event.message == "/debug --Version"){
-                        send_message(event.target, "Version: Beta1.0.1\nUpdate Log:https://github.com/KinNiji/NijiBot/blob/UpdateLog/Beta1.0.1.txt");
+                        send_message(event.target, "Version: Beta1.0.2\nUpdate Log:https://github.com/KinNiji/NijiBot/blob/UpdateLog/Beta1.0.2.txt");
                         event.block();
                     }else if(event.message == "/debug -i" || event.message == "/debug --Info"){
                         stringstream info;
@@ -202,21 +212,23 @@ CQ_INIT {
                         event.block();
                     }else {
                         send_private_message(event.user_id, errorInfo);
+                        event.block();
                     }
                 }catch (ApiError &err) { 
                     logging::warning("Debug", "消息回复失败, 错误码: " + to_string(err.code));
                 }
-                return;
             } else if (returnInfo == "ERROR") {
                 send_private_message(event.user_id, errorInfo);
-                return;
+                event.block();
             }else if (returnInfo == "HELP"){
                 send_private_message(event.user_id, helpInfo);
-                return;
+                event.block();
+            }else if (returnInfo == "EXECUTE"){
+                event.block();
             }else{
                 return;
             }
-            event.block();
+            
         }catch (ApiError &err) { 
             logging::warning("Debug", "消息回复失败, 错误码: " + to_string(err.code));
         }
@@ -232,6 +244,7 @@ CQ_INIT {
                 if (seg == MessageSegment::at(get_login_user_id())) { // 发现 at 消息段
                     send_message(event.target, "NijiBot会优先处理群聊中出现的@NijiBot，并留下一些帮助：\n\t·要查看应用就输应用列表，要聊天的话NijiBot一直都在~\n\t·所有群聊指令私聊也有效~");
                     send_message(event.target, "NijiBot会对聊天内容字段进行自动识别，不需要每次都@哦\n(哪个B不长眼的一直@NijiBot那NijiBot只能祝Ta马飞了)");
+                    event.block();
                     break;
                 }
             }
@@ -263,6 +276,7 @@ CQ_INIT {
                     send_group_message(event.group_id, "匿名通过Base64加密，鲨不了鲨不了ヽ( >д<)ｐ");
                     //set_group_anonymous_ban(event.group_id, event.anonymous, 30 * 60);
                     //send_group_message(event.group_id, "匿名的B已经被禁言了，yes！");
+                    event.block();
                 }catch (ApiError &err){
                     logging::warning("匿名" + event.group_id, "对匿名操作失败, 错误码: " + to_string(err.code));
                 }
